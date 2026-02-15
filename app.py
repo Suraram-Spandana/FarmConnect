@@ -13,7 +13,7 @@ app.secret_key = 'farmconnectsecret'
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '1234'
+app.config['MYSQL_PASSWORD'] = 'root123'
 app.config['MYSQL_DB'] = 'farmconnect'
 
 mysql = MySQL(app)
