@@ -5,16 +5,21 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import MySQLdb.cursors
 import os
+from dotenv import load_dotenv
 import uuid
 
 app = Flask(__name__)
-app.secret_key = 'farmconnectsecret'
+app.secret_key = os.getenv("SECRET_KEY", "devkey")
+
+load_dotenv()
 
 # MySQL Configuration
 app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root123'
-app.config['MYSQL_DB'] = 'farmconnect'
+app.config['MYSQL_USER'] = os.getenv('MYSQL_USER', 'root')
+app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
+if not app.config['MYSQL_PASSWORD']:
+    raise ValueError("MYSQL_PASSWORD not set in .env file")
+app.config['MYSQL_DB'] = os.getenv('MYSQL_DB', 'farmconnect')
 
 mysql = MySQL(app)
 
