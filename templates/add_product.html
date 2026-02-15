@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - FarmConnect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef5ed;
+            padding: 20px;
+        }
+        .container {
+            width: 480px;
+            background: #fff;
+            padding: 25px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px #ccc;
+        }
+        h2 {
+            color: #1a6600;
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #aaa;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #1a6600;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #145500;
+        }
+        a {
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Add New Product</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <label>Product Name</label>
+            <input type="text" name="name" required>
+
+            <label>Description</label>
+            <textarea name="description" required></textarea>
+
+            <label>Price (₹)</label>
+            <input type="number" name="price" step="0.01" required>
+
+            <label>Quantity (units/kg)</label>
+            <input type="number" name="quantity" required>
+
+            <label>Category</label>
+            <select name="category" required>
+                <option value="vegetables">Vegetables</option>
+                <option value="fruits">Fruits</option>
+                <option value="grains">Grains</option>
+                <option value="dairy">Dairy</option>
+                <option value="generic">Other</option>
+            </select>
+
+            <label>Upload Product Image (optional)</label>
+            <input type="file" name="image" accept="image/*">
+
+            <button type="submit">Add Product</button>
+        </form>
+
+        <a href="/farmer_dashboard">Back to Dashboard</a>
+    </div>
+
+</body>
+</html>

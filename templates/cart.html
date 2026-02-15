@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Cart | FarmConnect</title>
+<style>
+    body { font-family: Arial; background:#eef5ed; padding:20px; }
+    .cart-box { background:#fff; padding:15px; border-radius:8px; border:1px solid #bbb; margin-bottom:12px; display:flex; gap:12px; align-items:center; }
+    img { width:110px; height:90px; object-fit:cover; border-radius:6px; border:1px solid #ccc; }
+    .info { flex:1; }
+    button { padding:8px 12px; border:none; border-radius:6px; cursor:pointer; }
+    .remove { background:#e74c3c; color:#fff; }
+    .checkout { background:#1a6600; color:#fff; width:100%; margin-top:18px; }
+</style>
+</head>
+<body>
+<header style="background:#ffffff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;">
+    <div class="brand" style="font-size:22px;color:#006600;font-weight:bold;">
+        <a href="/" style="text-decoration:none;color:#006600;">FarmConnect</a>
+    </div>
+
+    <nav>
+        <a href="/" style="margin:0 10px;color:#006600;font-weight:bold;text-decoration:none;">Home</a>
+
+        {% if session.get('user_type') == 'consumer' %}
+            <a href="/consumer_dashboard" style="margin:0 10px;color:#006600;font-weight:bold;">Dashboard</a>
+            <a href="/cart" style="margin:0 10px;color:#0077cc;font-weight:bold;">Cart 🛒</a>
+            <a href="/orders" style="margin:0 10px;color:#006600;font-weight:bold;">Orders</a>
+            <a href="/logout" style="margin:0 10px;color:#cc0000;font-weight:bold;">Logout</a>
+
+        {% elif session.get('user_type') == 'farmer' %}
+            <a href="/farmer_dashboard" style="margin:0 10px;color:#006600;font-weight:bold;">Dashboard</a>
+            <a href="/farmer_orders" style="margin:0 10px;color:#0066cc;font-weight:bold;">Orders</a>
+            <a href="/logout" style="margin:0 10px;color:#cc0000;font-weight:bold;">Logout</a>
+
+        {% else %}
+            <a href="/login" style="margin:0 10px;color:#006600;font-weight:bold;">Login</a>
+            <a href="/register" style="margin:0 10px;color:#004d00;font-weight:bold;">Register</a>
+        {% endif %}
+    </nav>
+</header>
+
+<h1>🛒 My Cart</h1>
+<a href="/consumer_dashboard">⬅ Continue Shopping</a>
+<hr>
+
+{% if items %}
+    {% for i in items %}
+    <div class="cart-box">
+        <img src="{{ url_for('static', filename='images/' + (i.image if i.image else 'generic_default.png')) }}">
+
+        <div class="info">
+            <strong>{{ i.name }}</strong><br>
+            Farmer: {{ i.farmer_name }}<br>
+            ₹{{ i.price }} × {{ i.quantity }} =
+            <strong>₹{{ i.price * i.quantity }}</strong><br>
+        </div>
+
+        <form method="POST" action="{{ url_for('remove_cart', cart_id=i.cart_id) }}">
+            <button class="remove" type="submit">Remove ❌</button>
+        </form>
+    </div>
+    {% endfor %}
+
+    <h2>Total: ₹{{ total_amount }}</h2>
+
+    <form action="{{ url_for('checkout_cart') }}" method="POST" onsubmit="return goToOrders();">
+
+    <button type="submit"
+        style="background:green;color:white;border:none;padding:12px;width:100%;border-radius:6px;cursor:pointer;font-size:16px;">
+        Checkout All ✅
+    </button>
+</form>
+
+{% else %}
+    <p>Your cart is empty 😊</p>
+{% endif %}
+
+
+</body>
+</html>

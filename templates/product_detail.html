@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Product Detail</title>
+  <style>
+    body{font-family:Arial;background:#eef5ed;padding:20px}
+    .card{max-width:800px;margin:auto;background:#fff;padding:20px;border-radius:8px;border:1px solid #ccc}
+    img{width:250px;height:180px;object-fit:cover;border-radius:6px}
+    .btn{padding:8px 10px;border-radius:6px;border:none;background:#1a6600;color:#fff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="/view_products">⬅ Back to Products</a>
+    <h2>{{ p.name }}</h2>
+    {% if p.image %}
+      <img src="{{ url_for('static', filename='images/' + p.image) }}">
+    {% else %}
+      <img src="{{ url_for('static', filename='images/generic_default.png') }}">
+    {% endif %}
+    <p><strong>Farmer:</strong> {{ p.farmer_name }}</p>
+    <p>{{ p.description }}</p>
+    <p><strong>Price:</strong> ₹{{ p.price }} • <strong>Available:</strong> {{ p.quantity }}</p>
+
+    {% if 'user_id' in session and session.get('user_type') == 'consumer' %}
+      <form method="POST" action="{{ url_for('buy_product', product_id=p.id) }}">
+        <input type="number" name="quantity" value="1" min="1" style="width:80px;">
+        <button class="btn" type="submit">Buy Now</button>
+      </form>
+    {% endif %}
+  </div>
+</body>
+</html>

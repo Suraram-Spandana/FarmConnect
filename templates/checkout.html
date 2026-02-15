@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Checkout - FarmConnect</title>
+  <style>
+    body{font-family:Arial;background:#eef5ed;padding:20px;}
+    .card{max-width:800px;margin:auto;background:#fff;padding:20px;border-radius:8px;border:1px solid #ccc;}
+    .row{display:flex;gap:12px}
+    label{font-weight:700}
+    input, textarea, select{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #aaa}
+    .btn{background:#1a6600;color:#fff;padding:10px 14px;border-radius:6px;border:none;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Checkout</h2>
+
+    <h3>{{ product.name }} — ₹{{ product.price }} × {{ qty }} = ₹{{ '%.2f' % (product.price * qty) }}</h3>
+
+    <form method="POST">
+      <input type="hidden" name="quantity" value="{{ qty }}">
+
+      <label>Full Name</label>
+      <input name="full_name" required>
+
+      <label>Phone</label>
+      <input name="phone" required>
+
+      <label>House No</label>
+      <input name="house_no" required>
+
+      <label>Street</label>
+      <input name="street" required>
+
+      <label>Landmark (optional)</label>
+      <input name="landmark">
+
+      <label>Village / Town</label>
+      <input name="town" required>
+
+      <label>District</label>
+      <input name="district" required>
+
+      <label>State</label>
+      <input name="state" required>
+
+      <label>Pincode</label>
+      <input name="pincode" required>
+
+      <div style="margin-top:12px;">
+        <button class="btn" type="submit">Proceed to Pay (Simulate)</button>
+        <a href="/view_products" style="margin-left:10px;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

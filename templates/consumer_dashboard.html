@@ -1,0 +1,184 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Consumer Dashboard | FarmConnect</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef5ed;
+            padding: 10px 5%;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            color: #006600;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        a {
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .logout {
+            color: #cc0000;
+        }
+
+        img {
+            width: 130px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        .product-card {
+            background: #fff;
+            border: 1px solid #bbb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .flash-container {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            animation: fadeIn 0.4s;
+            z-index: 9999;
+        }
+
+        .flash-message {
+            background: #28a745;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ✅ Flash message after actions -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for msg in messages %}
+        <div class="flash-message">✅ {{ msg }}</div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector('.flash-container').style.opacity = '0';
+        }, 2500);
+        setTimeout(() => {
+            document.querySelector('.flash-container').remove();
+        }, 3000);
+    </script>
+    {% endif %}
+{% endwith %}
+
+<header style="background:#ffffff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;">
+    <div class="brand" style="font-size:22px;color:#006600;font-weight:bold;">
+        <a href="/" style="text-decoration:none;color:#006600;">FarmConnect</a>
+    </div>
+
+    <nav>
+        <a href="/" style="margin:0 10px;color:#006600;font-weight:bold;text-decoration:none;">Home</a>
+
+        {% if session.get('user_type') == 'consumer' %}
+            <a href="/consumer_dashboard" style="margin:0 10px;color:#006600;font-weight:bold;">Dashboard</a>
+            <a href="/cart" style="margin:0 10px;color:#0077cc;font-weight:bold;">Cart 🛒</a>
+            <a href="/orders" style="margin:0 10px;color:#006600;font-weight:bold;">Orders</a>
+            <a href="/logout" style="margin:0 10px;color:#cc0000;font-weight:bold;">Logout</a>
+
+        {% elif session.get('user_type') == 'farmer' %}
+            <a href="/farmer_dashboard" style="margin:0 10px;color:#006600;font-weight:bold;">Dashboard</a>
+            <a href="/farmer_orders" style="margin:0 10px;color:#0066cc;font-weight:bold;">Orders</a>
+            <a href="/logout" style="margin:0 10px;color:#cc0000;font-weight:bold;">Logout</a>
+
+        {% else %}
+            <a href="/login" style="margin:0 10px;color:#006600;font-weight:bold;">Login</a>
+            <a href="/register" style="margin:0 10px;color:#004d00;font-weight:bold;">Register</a>
+        {% endif %}
+    </nav>
+</header>
+
+
+<h2 style="color:green;">Available Products</h2>
+
+{% if products %}
+    {% for p in products %}
+        <div class="product-card">
+
+            {% if p.image %}
+                <img src="{{ url_for('static', filename='images/' + p.image) }}">
+            {% else %}
+                {% if p.category == 'vegetables' %}
+                    <img src="{{ url_for('static', filename='images/veg_default.png') }}">
+                {% elif p.category == 'fruits' %}
+                    <img src="{{ url_for('static', filename='images/fruits_default.png') }}">
+                {% elif p.category == 'grains' %}
+                    <img src="{{ url_for('static', filename='images/grains_default.png') }}">
+                {% elif p.category == 'dairy' %}
+                    <img src="{{ url_for('static', filename='images/dairy_default.png') }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/generic_default.png') }}">
+                {% endif %}
+            {% endif %}
+
+            <h3>{{ p.name }}</h3>
+            <p>{{ p.description }}</p>
+            <p><strong>₹{{ p.price }}</strong> • {{ p.quantity }} units</p>
+            <p>Farmer: <strong>{{ p.farmer_name }}</strong></p>
+
+            <!-- ✅ Add to Cart + Buy Now buttons -->
+            <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+
+                <form method="POST" action="{{ url_for('add_to_cart', product_id=p.id) }}" style="display:inline">
+                    <input type="number" name="quantity" min="1" max="{{ p.quantity }}" value="1"
+                        required style="width:60px;padding:4px;">
+                    <button type="submit"
+                        style="background:#1a6600;color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;">
+                        Add to Cart 🛒
+                    </button>
+                </form>
+
+                <form method="POST" action="{{ url_for('buy_product', product_id=p.id) }}" style="display:inline">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit"
+                        style="background:#0066cc;color:white;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;">
+                        Buy Now ⚡
+                    </button>
+                </form>
+
+            </div>
+            <!-- ✅ End buttons -->
+
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No products available right now.</p>
+{% endif %}
+
+</body>
+</html>

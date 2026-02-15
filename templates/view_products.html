@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Products - FarmConnect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef5ed;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #006600;
+            margin-bottom: 20px;
+        }
+        .product-card {
+            background: #ffffff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+        }
+        img {
+            width: 130px;
+            height: 110px;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .back-btn {
+            background-color: #006600;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-container {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .flash-container {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            animation: fadeIn 0.5s;
+            z-index: 9999;
+        }
+        .flash-message {
+            background: #28a745;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for msg in messages %}
+        <div class="flash-message">
+            ✅ {{ msg }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            document.querySelector('.flash-container').style.opacity = '0';
+        }, 2500);
+        setTimeout(() => {
+            document.querySelector('.flash-container').remove();
+        }, 3000);
+    </script>
+    {% endif %}
+{% endwith %}
+
+<h1>Available Products</h1>
+
+<div class="back-container">
+    <a href="/consumer_dashboard" class="back-btn">⬅ Back to Dashboard</a>
+</div>
+
+{% if products %}
+    {% for p in products %}
+        <div class="product-card">
+
+            {% if p.image %}
+                <img src="{{ url_for('static', filename='images/' + p.image) }}">
+            {% else %}
+                {% if p.category == 'vegetables' %}
+                    <img src="{{ url_for('static', filename='images/veg_default.png') }}">
+                {% elif p.category == 'fruits' %}
+                    <img src="{{ url_for('static', filename='images/fruits_default.png') }}">
+                {% elif p.category == 'grains' %}
+                    <img src="{{ url_for('static', filename='images/grains_default.png') }}">
+                {% elif p.category == 'dairy' %}
+                    <img src="{{ url_for('static', filename='images/dairy_default.png') }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/generic_default.png') }}">
+                {% endif %}
+            {% endif %}
+
+            <strong>{{ p.name }}</strong> — ₹{{ p.price }}
+            <p>{{ p.quantity }} units</p>
+            <p>{{ p.description }}</p>
+            <p>Farmer: <strong>{{ p.farmer_name }}</strong></p>
+
+            <form method="POST" action="/buy_product/{{ p.id }}">
+                <input type="number" name="quantity" value="1" min="1" required style="width:55px;">
+                <button type="submit" style="background:green;color:white;border:none;padding:6px 10px;border-radius:4px;cursor:pointer;">
+                    Buy
+                </button>
+            </form>
+
+        </div>
+    {% endfor %}
+{% else %}
+    <p>No products available.</p>
+{% endif %}
+
+</body>
+</html>

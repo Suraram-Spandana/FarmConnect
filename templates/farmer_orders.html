@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Orders For You | FarmConnect</title>
+  <style>
+    body { font-family: Arial; background:#eef5ed; padding:20px; }
+    .card { max-width:900px; margin:auto }
+    .order {
+      background:#fff; padding:12px; border-radius:8px;
+      border:1px solid #bbb; margin-bottom:12px;
+      display:flex; gap:12px; align-items:center;
+      position:relative;
+    }
+    img {
+      width:110px; height:90px; object-fit:cover;
+      border-radius:6px; border:1px solid #ccc;
+    }
+    .info { flex:1 }
+    .btn {
+      padding:8px 12px; border-radius:6px;
+      border:none; cursor:pointer;
+    }
+    .deliver { background:#0066cc; color:white }
+    .filters select, .filters button {
+      padding:6px; margin-right:6px;
+      border-radius:5px; border:1px solid #777;
+    }
+    .filters button {
+      background:#1a6600; color:white;
+      cursor:pointer;
+    }
+    .new-tag {
+      background:#e6ffb3; color:#2d6600;
+      font-size:12px; padding:3px 6px;
+      border-radius:5px; font-weight:bold;
+      position:absolute; top:6px; right:6px;
+    }
+
+    .flash-container {
+      background:#28a745;
+      padding:10px 14px; color:white;
+      border-radius:6px; margin-bottom:10px;
+      font-weight:bold;
+      animation: fadeIn 0.4s;
+    }
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(-10px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+    <header style="background:#ffffff;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;">
+    <div class="brand" style="font-size:22px;color:#006600;font-weight:bold;">
+        <a href="/" style="text-decoration:none;color:#006600;">FarmConnect</a>
+    </div>
+
+    <nav>
+        <a href="/" style="margin:0 10px;color:#006600;font-weight:bold;text-decoration:none;">Home</a>
+
+        {% if session.get('user_type') == 'consumer' %}
+            <a href="/consumer_dashboard" style="margin:0 10px;color:#006600;font-weight:bold;">Dashboard</a>
+            <a href="/cart" style="margin:0 10px;color:#0077cc;font-weight:bold;">Cart 🛒</a>
+            <a href="/orders" style="margin:0 10px;color:#006600;font-weight:bold;">Orders</a>
+            <a href="/logout" style="margin:0 10px;color:#cc0000;font-weight:bold;">Logout</a>
+
+        {% elif session.get('user_type') == 'farmer' %}
+            <a href="/farmer_dashboard" style="margin:0 10px;color:#006600;font-weight:bold;">Dashboard</a>
+            <a href="/farmer_orders" style="margin:0 10px;color:#0066cc;font-weight:bold;">Orders</a>
+            <a href="/logout" style="margin:0 10px;color:#cc0000;font-weight:bold;">Logout</a>
+
+        {% else %}
+            <a href="/login" style="margin:0 10px;color:#006600;font-weight:bold;">Login</a>
+            <a href="/register" style="margin:0 10px;color:#004d00;font-weight:bold;">Register</a>
+        {% endif %}
+    </nav>
+</header>
+
+  <div class="card">
+    <h1>Orders For You</h1>
+    <a href="/farmer_dashboard">⬅ Back</a>
+
+    <!-- ✅ Flash messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-container">
+          {% for msg in messages %}
+            ✅ {{ msg }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- ✅ Filters -->
+    <form class="filters" method="GET" style="margin:12px 0;">
+      <select name="month">
+        <option value="">Month</option>
+        {% for m in range(1,13) %}
+          <option value="{{ m }}" {% if selected_month == m|string %}selected{% endif %}>{{ m }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="year">
+        <option value="">Year</option>
+        {% for y in range(2023,2032) %}
+          <option value="{{ y }}" {% if selected_year == y|string %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="category">
+        <option value="">Category</option>
+        <option value="vegetables" {% if selected_category == 'vegetables' %}selected{% endif %}>Vegetables</option>
+        <option value="fruits" {% if selected_category == 'fruits' %}selected{% endif %}>Fruits</option>
+        <option value="grains" {% if selected_category == 'grains' %}selected{% endif %}>Grains</option>
+        <option value="dairy" {% if selected_category == 'dairy' %}selected{% endif %}>Dairy</option>
+        <option value="generic" {% if selected_category == 'generic' %}selected{% endif %}>Others</option>
+      </select>
+
+      <select name="status">
+        <option value="">Status</option>
+        <option value="Pending" {% if selected_status == 'Pending' %}selected{% endif %}>Pending</option>
+        <option value="Delivered" {% if selected_status == 'Delivered' %}selected{% endif %}>Delivered</option>
+        <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+
+      <button type="submit">Filter</button>
+    </form>
+
+    <hr>
+
+    {% if orders %}
+      {% for o in orders %}
+        <div class="order">
+
+          {% if o.farmer_seen == 0 and o.status == "Pending" %}
+          <div class="new-tag">New Order 🔔</div>
+          {% endif %}
+
+          <img src="{{ url_for('static', filename='images/' + (o.product_image or 'generic_default.png')) }}">
+
+          <div class="info">
+            <strong>{{ o.product_name }}</strong> | {{ o.category }}
+            <div>Qty: {{ o.quantity }} • ₹{{ o.total_price }} • {{ o.order_date }}</div>
+            <div>Buyer: {{ o.consumer_name }} • 📞 {{ o.phone }}</div>
+            <div>Delivery To: {{ o.address }}</div>
+
+            {% if o.status == 'Pending' %}
+  <form method="POST" action="{{ url_for('accept_order', order_id=o.id) }}" style="display:inline;">
+    <button class="btn" style="background:#1a6600;color:white;">Accept ✅</button>
+  </form>
+
+  <form method="POST" action="{{ url_for('reject_order', order_id=o.id) }}" style="display:inline;">
+    <button class="btn" style="background:#cc0000;color:white;">Reject ❌</button>
+  </form>
+{% elif o.status == 'Accepted' %}
+  <form method="POST" action="{{ url_for('mark_delivered', order_id=o.id) }}" style="display:inline;">
+    <button class="btn deliver">Mark Delivered ✅</button>
+  </form>
+{% endif %}
+
+          </div>
+
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No orders found for selected filters.</p>
+    {% endif %}
+  </div>
+</body>
+</html>
